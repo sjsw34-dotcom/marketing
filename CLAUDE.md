@@ -26,6 +26,7 @@ marketing/
 │   ├── brand-guidelines.md      브랜드 에센스, 톤&보이스, 핵심 문구
 │   ├── design-style-guide.md    웹 디자인 시스템 (다크 테마)
 │   └── business-context.md      타겟·모델·퍼널·지표
+├── out/                     ← 실제 발송·발표용 산출물 + 빌드 스크립트
 └── _templates/              ← 항상 참조하는 산출물 템플릿
     ├── newsletter-template.md       뉴스레터 (Brezsny 톤 + Saju 정통성)
     ├── ppt-template.md              PPT 크림·세리프 (따뜻한 자리)
@@ -62,6 +63,12 @@ marketing/
 - **외부 노출 산출물(웹·뉴스레터·SNS·블로그·OG)**: 100% 영어, GenZ 톤
 - **내부 작업물(PPT·기획서·전략 메모·이 워크스페이스의 .md)**: 한국어 OK, 사용자가 한국인이므로 사용자와의 대화는 한국어
 - 한 산출물 안에서 두 언어 섞지 말 것 (혼란)
+- **예외 — 내부 한국어 PPT의 하이브리드 룰**: 본문은 한국어, 아래 요소는 **영어 유지**:
+  - 브랜드명·워드마크 ("SAJUMUSE")
+  - 섹션 헤더 ("ABOUT US", "MILESTONE", "OUR STORY" 등 영문 Display)
+  - 태그라인·핵심 캐치프레이즈 ("Your destiny is written in the stars.")
+  - 제품·티어명 ("Free Mini Reading", "Premium Full Report")
+  - CTA 라벨 — 이는 브랜드 일관성을 위해서다. Korean GenZ에게 팔 때도 브랜드 시각 언어는 영어로 통일.
 
 ### 톤 & 보이스
 - *Mystical, modern, trustworthy, personal* — [brand-guidelines.md](_context/brand-guidelines.md) 준수
@@ -101,7 +108,24 @@ marketing/
 6. **산출물 저장 위치 제안**:
    - 새 템플릿 → `_templates/`
    - 새 컨텍스트 문서 → `_context/`
-   - 실제 발송될 콘텐츠(이번 주 뉴스레터, 이번 캠페인 PPT 등) → 사용자에게 폴더 위치 확인 후 저장
+   - 실제 발송·프레젠테이션 콘텐츠(사업소개서, 이번 주 뉴스레터 등) → `out/` (gitignore는 하지 않음 — 이력 보존)
+   - PPT 빌드 스크립트도 `out/`에 함께 저장 (예: `out/build-deck.js` + `out/sajumuse-business-deck.pptx`)
+
+---
+
+## 🛠 PPT 생성 표준 (도구·워크플로우)
+
+- **생성 도구**: `pptxgenjs` (Node.js). `npm install pptxgenjs` 후 `out/build-*.js` 스크립트로 생성.
+- **폰트 페어링 (크림·세리프 덱)**: Display = `Georgia` (Cormorant/Playfair 대체, 크로스플랫폼 안전), Body = `Calibri` (한글·영문 동시 대응).
+- **폰트 페어링 (모노 덱)**: Display = `Arial Black` / `Impact`, Body = `Calibri`.
+- **레이아웃**: `LAYOUT_WIDE` (13.333" × 7.5", 16:9) 기본.
+- **마스터 슬라이드**: 모든 덱에 상·하단 0.5pt hairline 룰 + 좌측 브랜드 라벨 + 우측 페이지 번호 + 하단 URL 포함.
+- **QA (Windows 환경 제약)**: 이 환경엔 LibreOffice/pdftoppm이 없어 자동 PDF 변환 QA 불가. 대안:
+  1. `python -m markitdown <file>.pptx`로 콘텐츠 QA (콘솔은 한글을 깨뜨릴 수 있으나 파일은 정상)
+  2. placeholder 누락 확인: `grep -iE "xxxx|lorem|ipsum|placeholder|\{\{"`
+  3. PowerPoint 앱에서 사용자가 최종 시각 확인
+  4. macOS/Linux 접근 가능하면 `soffice --convert-to pdf → pdftoppm`로 이미지 QA 권장
+- **이미지 정책**: 실제 사진이 없을 때는 `surface alt` 컬러 블록 + hairline border로 자리만 잡고, 최종 발송 전 사용자에게 실사진 교체를 요청한다.
 
 ---
 
