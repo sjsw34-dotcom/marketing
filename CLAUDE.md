@@ -35,6 +35,8 @@ marketing/
 │   ├── business-context.md      타겟·모델·퍼널·지표
 │   ├── saju-engine-bridge.md    pdf_sell 엔진 I/O + 영문 번역 용어집
 │   ├── saju-calendar-2026.md    24절기 + 월운 트리거 달력
+│   ├── threads-playbook.md      Threads 4-slot 포맷·톤·예시
+│   ├── threads-meme-bank.md     Ten Gods × 상황 매트릭스 (70 템플릿)
 │   └── engine-samples/          엔진이 뱉은 실제 JSON 샘플 (재사용용)
 ├── out/                     ← 실제 발송·발표용 산출물 + 빌드 스크립트
 └── _templates/              ← 항상 참조하는 산출물 템플릿
@@ -79,6 +81,7 @@ ORCHESTRATOR (메인 Claude = Brand Strategist)
 | `market-researcher` | 경쟁사·트렌드·키워드·레퍼런스 리서치 | Playwright, WebFetch, WebSearch |
 | `saju-interpreter` | **pdf_sell 엔진 JSON → 영문 해석 블록** (차트·궁합·절기) | Read/Write/Bash |
 | `content-writer` | 영문 뉴스레터·블로그·랜딩·SNS 카피 | Read/Write/Edit |
+| `threads-producer` | **주간 Threads 배치 28 포스트** 스케줄 생성 (Buffer 업로드는 사용자가 별도 실행) | Read/Write/Bash |
 | `visual-designer` | 카드뉴스·썸네일·OG 이미지 | nanobanana |
 | `deck-builder` | PPT 덱 (크림·세리프 / 모노) | pptxgenjs + Bash |
 | `seo-optimizer` | 키워드·메타·OG·구조화 데이터 | WebSearch, Read/Edit |
@@ -196,6 +199,7 @@ ORCHESTRATOR (메인 Claude = Brand Strategist)
 
 | 사용자가 이렇게 말하면 | 1차 에이전트 | 파이프라인 (순차) |
 |---|---|---|
+| "다음 주 Threads 배치" / "주간 스레드 28개" | `threads-producer` | threads-producer → **brand-reviewer** → 사용자가 `out/threads/scripts/schedule.js` 수동 실행 |
 | "익명 차트 리딩" / "Reader X 사주 풀이" | `saju-interpreter` | (엔진 JSON 확보) → saju-interpreter → content-writer → visual-designer(헤더) → **brand-reviewer** |
 | "궁합 포스트 하나" | `saju-interpreter` | 엔진 2회 → saju-interpreter → content-writer → **brand-reviewer** |
 | "절기 드롭" (예: 立夏) | `saju-interpreter` | saju-interpreter(10 Day Masters matrix) → content-writer → **brand-reviewer** |
