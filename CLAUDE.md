@@ -32,7 +32,10 @@ marketing/
 ├── _context/                ← 브랜드·디자인·비즈니스 단일 진실 소스
 │   ├── brand-guidelines.md      브랜드 에센스, 톤&보이스, 핵심 문구
 │   ├── design-style-guide.md    웹 디자인 시스템 (다크 테마)
-│   └── business-context.md      타겟·모델·퍼널·지표
+│   ├── business-context.md      타겟·모델·퍼널·지표
+│   ├── saju-engine-bridge.md    pdf_sell 엔진 I/O + 영문 번역 용어집
+│   ├── saju-calendar-2026.md    24절기 + 월운 트리거 달력
+│   └── engine-samples/          엔진이 뱉은 실제 JSON 샘플 (재사용용)
 ├── out/                     ← 실제 발송·발표용 산출물 + 빌드 스크립트
 └── _templates/              ← 항상 참조하는 산출물 템플릿
     ├── newsletter-template.md       뉴스레터 (Brezsny 톤 + Saju 정통성)
@@ -74,6 +77,7 @@ ORCHESTRATOR (메인 Claude = Brand Strategist)
 | 에이전트 | 담당 | 핵심 툴 |
 |---|---|---|
 | `market-researcher` | 경쟁사·트렌드·키워드·레퍼런스 리서치 | Playwright, WebFetch, WebSearch |
+| `saju-interpreter` | **pdf_sell 엔진 JSON → 영문 해석 블록** (차트·궁합·절기) | Read/Write/Bash |
 | `content-writer` | 영문 뉴스레터·블로그·랜딩·SNS 카피 | Read/Write/Edit |
 | `visual-designer` | 카드뉴스·썸네일·OG 이미지 | nanobanana |
 | `deck-builder` | PPT 덱 (크림·세리프 / 모노) | pptxgenjs + Bash |
@@ -192,6 +196,9 @@ ORCHESTRATOR (메인 Claude = Brand Strategist)
 
 | 사용자가 이렇게 말하면 | 1차 에이전트 | 파이프라인 (순차) |
 |---|---|---|
+| "익명 차트 리딩" / "Reader X 사주 풀이" | `saju-interpreter` | (엔진 JSON 확보) → saju-interpreter → content-writer → visual-designer(헤더) → **brand-reviewer** |
+| "궁합 포스트 하나" | `saju-interpreter` | 엔진 2회 → saju-interpreter → content-writer → **brand-reviewer** |
+| "절기 드롭" (예: 立夏) | `saju-interpreter` | saju-interpreter(10 Day Masters matrix) → content-writer → **brand-reviewer** |
 | "이번 주 뉴스레터 써줘" | `content-writer` | market-researcher → content-writer → visual-designer(헤더) → **brand-reviewer** |
 | "블로그 글 한 편" | `content-writer` | market-researcher → content-writer → seo-optimizer → visual-designer(OG) → **brand-reviewer** |
 | "랜딩 카피 다듬어줘" | `content-writer` | content-writer → seo-optimizer → **brand-reviewer** |
