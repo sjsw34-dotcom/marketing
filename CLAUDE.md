@@ -21,7 +21,14 @@
 
 ```
 marketing/
-├── CLAUDE.md                ← 이 파일 (작업 시작점)
+├── CLAUDE.md                ← 이 파일 (작업 시작점, 라우팅 룰)
+├── .claude/agents/          ← 실행 가능한 서브에이전트 6종
+│   ├── market-researcher.md     리서치 (Playwright·WebFetch)
+│   ├── content-writer.md        영문 카피 제작
+│   ├── visual-designer.md       이미지 (nanobanana)
+│   ├── deck-builder.md          PPT (pptxgenjs)
+│   ├── seo-optimizer.md         SEO·메타·OG
+│   └── brand-reviewer.md        최종 검수 게이트
 ├── _context/                ← 브랜드·디자인·비즈니스 단일 진실 소스
 │   ├── brand-guidelines.md      브랜드 에센스, 톤&보이스, 핵심 문구
 │   ├── design-style-guide.md    웹 디자인 시스템 (다크 테마)
@@ -40,20 +47,45 @@ marketing/
 
 ---
 
-## 🤖 마케팅 에이전트 팀 (역할 분담)
+## 🤖 마케팅 에이전트 팀 (실행 가능한 서브에이전트)
 
-이 워크스페이스에서는 6개의 가상 역할로 나누어 작업합니다. 사용자가 요청하면 그 요청에 가장 적합한 역할을 *선언하고* 작업을 시작하세요.
+이 워크스페이스는 **6개 서브에이전트 + 오케스트레이터(메인 Claude)** 구조로 운영됩니다. 각 에이전트는 `.claude/agents/*.md`에 정의되어 있으며 단일 책임을 가집니다.
 
-| 역할 | 담당 산출물 | 1차 참조 문서 |
+### 파이프라인 (4단계)
+
+```
+USER REQUEST
+   ↓
+ORCHESTRATOR (메인 Claude = Brand Strategist)
+   ↓
+┌── [1] RESEARCH ──┬── [2] CONTENT ──┬── [3] DESIGN ────┐
+│ market-researcher│ content-writer  │ visual-designer  │
+│ seo-optimizer    │                 │ deck-builder     │
+└──────────────────┴─────────────────┴──────────────────┘
+                            ↓
+                   [4] REVIEW (GATE)
+                     brand-reviewer
+                            ↓
+                    USER APPROVAL → PUBLISH
+```
+
+### 에이전트 카탈로그
+
+| 에이전트 | 담당 | 핵심 툴 |
 |---|---|---|
-| **Brand Strategist** | 포지셔닝, 메시지 하우스, 톤 결정, 캠페인 컨셉 | brand-guidelines · business-context |
-| **Content Writer (EN)** | 블로그, 뉴스레터, 랜딩 카피, 이메일 시퀀스 | brand-guidelines · newsletter-template |
-| **SEO Specialist** | 키워드, 메타·OG, 블로그 구조, 인덱싱 전략 | business-context (블로그 자동화 섹션) |
-| **Visual Designer** | PPT, 카드뉴스, 썸네일, OG 이미지 컨셉 | design-style-guide · ppt-template(s) · 무드보드 |
-| **Social/Community** | Instagram·TikTok·X 카피, UGC 큐레이션, 리뷰 수집 | brand-guidelines (voice) |
-| **Performance/Funnel** | 전환 카피, A/B 테스트, 가격 페이지, CTA 최적화 | business-context (퍼널·지표) |
+| `market-researcher` | 경쟁사·트렌드·키워드·레퍼런스 리서치 | Playwright, WebFetch, WebSearch |
+| `content-writer` | 영문 뉴스레터·블로그·랜딩·SNS 카피 | Read/Write/Edit |
+| `visual-designer` | 카드뉴스·썸네일·OG 이미지 | nanobanana |
+| `deck-builder` | PPT 덱 (크림·세리프 / 모노) | pptxgenjs + Bash |
+| `seo-optimizer` | 키워드·메타·OG·구조화 데이터 | WebSearch, Read/Edit |
+| `brand-reviewer` | **최종 검수 게이트** (룰 위반 차단) | Read, Grep |
 
-요청이 모호하면 어떤 역할로 답할지 한 줄로 선언 후 진행하세요. 예: *"Content Writer 모드로 답합니다."*
+### 오케스트레이터(메인 Claude) 책임
+- 사용자 요청을 파이프라인 단계로 분해
+- 적절한 서브에이전트를 선택·호출 (병렬 가능 시 병렬)
+- 에이전트 간 컨텍스트 전달 (산출물 경로 명시)
+- **모든 외부 노출 산출물은 `brand-reviewer`를 거쳐야 공개**
+- 오케스트레이터 자체가 Brand Strategist 역할 — 포지셔닝·메시지 하우스·캠페인 컨셉 의사결정은 여기서
 
 ---
 
@@ -154,17 +186,30 @@ marketing/
 
 ---
 
-## 🧭 자주 받을 요청과 추천 출발점
+## 🧭 요청 라우팅 룰 (오케스트레이터용)
 
-| 사용자가 이렇게 말하면 | 이 파일부터 읽기 |
-|---|---|
-| "이번 주 뉴스레터 써줘" | newsletter-template.md → brand-guidelines.md |
-| "투자 제안서 만들어줘" | ppt-template.md (크림) → business-context.md |
-| "신제품 키노트 슬라이드" | ppt-template-mono.md (모노) → 무드보드 jpg |
-| "인스타 카드뉴스 5장" | cardnews jpg 무드보드 → brand-guidelines.md |
-| "블로그 글 한 편" | business-context.md (SEO 섹션) → brand-guidelines.md (voice) |
-| "랜딩 카피 다듬어줘" | design-style-guide.md → brand-guidelines.md |
-| "OG 이미지 카피" | design-style-guide.md → brand-guidelines.md |
+아래 패턴을 보면 해당 에이전트로 위임하거나 순차 호출합니다.
+
+| 사용자가 이렇게 말하면 | 1차 에이전트 | 파이프라인 (순차) |
+|---|---|---|
+| "이번 주 뉴스레터 써줘" | `content-writer` | market-researcher → content-writer → visual-designer(헤더) → **brand-reviewer** |
+| "블로그 글 한 편" | `content-writer` | market-researcher → content-writer → seo-optimizer → visual-designer(OG) → **brand-reviewer** |
+| "랜딩 카피 다듬어줘" | `content-writer` | content-writer → seo-optimizer → **brand-reviewer** |
+| "인스타 카드뉴스 N장" | `visual-designer` | content-writer(카피 확정) → visual-designer → **brand-reviewer** |
+| "썸네일/OG 이미지" | `visual-designer` | visual-designer → **brand-reviewer** |
+| "투자 제안서·사업소개서" | `deck-builder` | deck-builder (크림 변형) → **brand-reviewer** |
+| "키노트/쇼케이스 슬라이드" | `deck-builder` | deck-builder (모노 변형) → **brand-reviewer** |
+| "경쟁사 분석해줘" | `market-researcher` | market-researcher (단독) |
+| "키워드 리서치" | `seo-optimizer` | seo-optimizer (단독) |
+| "이거 문제 없는지 봐줘" | `brand-reviewer` | brand-reviewer (단독) |
+| "캠페인 컨셉 짜줘" | **오케스트레이터 (메인)** | Brand Strategist 역할로 직접 답변, 필요 시 market-researcher 병렬 호출 |
+
+### 라우팅 원칙
+1. **단일 산출물 요청**: 1차 에이전트 직접 호출
+2. **복합 산출물 (예: 뉴스레터 = 카피 + 이미지)**: 파이프라인 순차 실행
+3. **병렬 가능한 경우 병렬**: 예) "리서치 + 이미지 2장" 동시에
+4. **외부 노출 산출물은 모두 `brand-reviewer`로 마감** — 예외 없음
+5. **모호한 요청**: 오케스트레이터가 1문장으로 해석을 선언 후 진행 ("블로그 포스트로 받는 걸로 진행합니다")
 
 ---
 
@@ -179,5 +224,6 @@ marketing/
 ## ✎ 이 문서 자체에 대해
 
 - 이 CLAUDE.md는 살아있는 문서. 새 역할·새 산출물 유형·새 규칙이 정착되면 사용자 동의 후 갱신.
-- 신규 템플릿이 `_templates/`에 추가되면 위의 "자주 받을 요청" 표에도 한 줄 추가.
+- 신규 템플릿이 `_templates/`에 추가되면 위의 "요청 라우팅 룰" 표에도 한 줄 추가.
 - 신규 컨텍스트 문서가 `_context/`에 추가되면 "워크스페이스 구조" 트리 갱신.
+- 신규 서브에이전트는 `.claude/agents/`에 추가하고 "에이전트 카탈로그" + "요청 라우팅 룰" 동시 갱신.
